@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Generador de informe disciplinario - Defensa Civil</title>
-<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
 <header class="top">
@@ -70,9 +70,11 @@
   </div>
 
   <div class="panel"><h2>5. Deberes, prohibiciones y principios vulnerados</h2>
+    <p class="sub" style="margin-top:0;font-weight:400;color:#5b6675">Cada numeral viene en resumen. Marque los que se vulneraron; el texto literal pasa solo al informe.</p>
     <div class="sub">Deberes (Art. 18)</div><div class="scroll" id="listDeb"></div>
     <div class="sub">Prohibiciones (Art. 19)</div><div class="scroll" id="listPro"></div>
-    <div class="sub">Principios (Art. 6) y valores (Art. 7)</div><div class="scroll" id="listPri"></div>
+    <div class="sub">Principios (Art. 6)</div><div class="scroll" id="listPriA"></div>
+    <div class="sub">Valores (Art. 7)</div><div class="scroll" id="listPriB"></div>
     <label>Cómo se relacionan con los hechos</label><textarea id="normasRel"></textarea>
   </div>
 
@@ -100,7 +102,7 @@
 </div>
 </div>
 
-<script src="data.js"></script>
-<script src="app.js"></script>
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
 </body>
 </html>

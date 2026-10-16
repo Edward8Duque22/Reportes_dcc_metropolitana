@@ -22,7 +22,7 @@ textarea{min-height:70px;resize:vertical}
 .note{font-size:13px;background:var(--warnbg);color:var(--warn);border-radius:6px;padding:6px 9px;margin:6px 0}
 .chk{display:flex;gap:8px;align-items:flex-start;margin:5px 0;font-size:13.5px}
 .chk input{margin-top:3px}
-.scroll{max-height:240px;overflow:auto;border:1px solid var(--line);border-radius:8px;padding:6px 10px;background:#fff}
+.scroll{max-height:320px;overflow:auto;border:1px solid var(--line);border-radius:8px;padding:6px 10px;background:#fff}
 .sub{font-weight:600;font-size:13px;margin:8px 0 2px;color:var(--ac)}
 /* documento */
 .sheet{background:#fff;border:1px solid var(--line);border-radius:10px;padding:48px 56px;font-family:Arial,Helvetica,sans-serif;font-size:11pt;color:#000;line-height:1.4}
@@ -45,3 +45,8 @@ textarea{min-height:70px;resize:vertical}
  .sheet .ph{background:none}
  @page{size:Letter;margin:2.2cm}
 }
+.resumen{font-size:13.5px;background:#eaf6ec;border-left:3px solid #2e7d32;padding:6px 9px;margin:6px 0;border-radius:4px}
+details{margin:6px 0;font-size:13px}
+details summary{cursor:pointer;color:var(--ac);font-weight:600}
+details.guia ol{margin:6px 0 0 0;padding-left:26px;max-height:260px;overflow:auto}
+details.guia li{margin:3px 0}
