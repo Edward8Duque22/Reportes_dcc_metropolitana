@@ -1,0 +1,13 @@
+GENERADOR DE INFORME DE PRESUNTA FALTA DISCIPLINARIA
+Reglamento del Voluntario y Organizaciones de Defensa Civil (Resolucion 000292 de 2024)
+
+Como usarlo: descomprima la carpeta completa y abra index.html con el navegador (Chrome, Edge o Firefox).
+No necesita internet ni instalacion.
+
+Estructura:
+  index.html     Pagina y formulario
+  css/styles.css Estilos de pantalla e impresion
+  js/data.js     Texto literal de faltas, deberes, prohibiciones, principios, atenuantes y agravantes
+  js/app.js      Logica: formulario, autocompletado, vista del documento, imprimir, Word y copiar
+
+Mantenga las carpetas css y js junto a index.html.
