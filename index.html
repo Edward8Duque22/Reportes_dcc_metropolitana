@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Generador de informe disciplinario - Defensa Civil</title>
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<header class="top">
+  <h1>Generador de informe de presunta falta disciplinaria</h1>
+  <p>Reglamento del Voluntario y Organizaciones de Defensa Civil (Resolución 000292 del 28 de junio de 2024)</p>
+</header>
+
+<div class="wrap">
+<div class="form">
+  <div class="bar">
+    <button class="btn" id="bPrint">Imprimir / Guardar PDF</button>
+    <button class="btn sec" id="bDoc">Descargar Word</button>
+    <button class="btn sec" id="bCopy">Copiar texto</button>
+    <button class="btn del" id="bClear">Borrar todo</button>
+  </div>
+
+  <div class="panel"><h2>1. Datos generales</h2>
+    <div class="row2">
+      <div><label>Ciudad</label><input type="text" id="ciudad"></div>
+      <div><label>Fecha</label><input type="date" id="fecha"></div>
+    </div>
+    <label>Dirección Seccional (departamento)</label><input type="text" id="seccional">
+    <label>Organización (Junta o Comité y municipio)</label><input type="text" id="org">
+    <div class="row2">
+      <div><label>Quien informa</label><input type="text" id="inf"></div>
+      <div><label>Calidad o cargo</label><input type="text" id="infcargo"></div>
+    </div>
+    <label>Documento de identidad de quien informa</label><input type="text" id="infcc">
+  </div>
+
+  <div class="panel"><h2>2. Voluntario investigado</h2>
+    <label>Nombre completo</label><input type="text" id="vol">
+    <div class="row2">
+      <div><label>Documento de identidad</label><input type="text" id="volcc"></div>
+      <div><label>Nivel de escalafonamiento</label><input type="text" id="volnivel" placeholder="Nivel 0 a 5"></div>
+    </div>
+    <label>Organización a la que pertenece</label><input type="text" id="volorg">
+    <label>Calidad dentro de la organización</label>
+    <select id="volcal">
+      <option value="">Seleccione</option>
+      <option>Voluntario operativo</option><option>Dignatario: presidente</option><option>Dignatario: vicepresidente</option>
+      <option>Dignatario: secretario</option><option>Dignatario: tesorero</option><option>Dignatario: voluntario coordinador</option>
+      <option>Fiscal</option><option>Coordinador de comité</option><option>Voluntario consultor</option><option>Voluntario no operativo</option>
+    </select>
+    <label>Antecedentes disciplinarios</label><input type="text" id="volant" placeholder="Ninguno / describir sanción y fecha">
+  </div>
+
+  <div class="panel"><h2>3. Relato de los hechos</h2>
+    <div class="row2">
+      <div><label>Fecha y hora de los hechos</label><input type="text" id="h_tiempo"></div>
+      <div><label>Lugar</label><input type="text" id="h_lugar"></div>
+    </div>
+    <label>Contexto (actividad en curso, si portaba el uniforme)</label><textarea id="h_ctx"></textarea>
+    <label>Conducta del voluntario</label><textarea id="h_cond"></textarea>
+    <label>Persona afectada o testigos</label><input type="text" id="h_test">
+    <label>Consecuencias</label><textarea id="h_cons"></textarea>
+  </div>
+
+  <div class="panel"><h2>4. Faltas atribuidas</h2>
+    <p class="sub" style="margin-top:0">Elija la clase y el numeral; el artículo, el texto literal y la sanción se completan solos.</p>
+    <div id="cargos"></div>
+    <button class="btn sec sm" id="addCargo">+ Agregar otra falta</button>
+  </div>
+
+  <div class="panel"><h2>5. Deberes, prohibiciones y principios vulnerados</h2>
+    <div class="sub">Deberes (Art. 18)</div><div class="scroll" id="listDeb"></div>
+    <div class="sub">Prohibiciones (Art. 19)</div><div class="scroll" id="listPro"></div>
+    <div class="sub">Principios (Art. 6) y valores (Art. 7)</div><div class="scroll" id="listPri"></div>
+    <label>Cómo se relacionan con los hechos</label><textarea id="normasRel"></textarea>
+  </div>
+
+  <div class="panel"><h2>6. Pruebas</h2>
+    <div id="pruebas"></div>
+    <button class="btn sec sm" id="addPrueba">+ Agregar prueba</button>
+    <label>Pruebas que se solicita practicar</label><input type="text" id="pruebasSol">
+  </div>
+
+  <div class="panel"><h2>7. Atenuantes y agravantes</h2>
+    <div class="sub">Atenuantes (Art. 34)</div><div id="listAten"></div>
+    <div class="sub">Agravantes (Art. 35)</div><div id="listAgr"></div>
+    <label>Observaciones</label><textarea id="aaObs"></textarea>
+  </div>
+
+  <div class="panel"><h2>8. Solicitud y notificaciones</h2>
+    <label>Petición adicional (opcional)</label><input type="text" id="peticion">
+    <label>Notificaciones (dirección, correo, teléfono)</label><input type="text" id="notif">
+    <label>Anexos</label><input type="text" id="anexos">
+  </div>
+</div>
+
+<div>
+  <div class="sheet" id="sheet"></div>
+</div>
+</div>
+
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
