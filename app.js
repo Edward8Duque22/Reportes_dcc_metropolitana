@@ -18,10 +18,12 @@ function renderCargos(){
     const F=FALTAS[c.clase];
     let opts=`<option value="">Seleccione clase</option>`+Object.keys(FALTAS).map(k=>`<option value="${k}" ${c.clase===k?"selected":""}>Falta ${FALTAS[k].nombre.toLowerCase()} (Art. ${FALTAS[k].art})</option>`).join("");
     let nums="";
-    if(F){ nums=`<option value="">Seleccione numeral</option>`+F.items.map((t,j)=>`<option value="${j+1}" ${String(c.num)===String(j+1)?"selected":""}>Num. ${j+1}: ${esc(t.slice(0,70))}${t.length>70?"…":""}</option>`).join(""); }
+    if(F){ nums=`<option value="">Seleccione numeral</option>`+F.items.map((t,j)=>`<option value="${j+1}" ${String(c.num)===String(j+1)?"selected":""}>Num. ${j+1}: ${esc(RES.faltas[c.clase][j])}</option>`).join(""); }
     d.innerHTML=`<label style="margin-top:0">Clase de falta</label><select data-k="clase">${opts}</select>
+      ${F?`<details class="guia"><summary>Guía rápida: numerales del Art. ${F.art}</summary><ol>${RES.faltas[c.clase].map((r,j)=>`<li value="${j+1}">${esc(r)}</li>`).join("")}</ol></details>`:""}
       <label>Numeral</label><select data-k="num" ${F?"":"disabled"}>${nums||"<option>Primero elija la clase</option>"}</select>
-      ${F&&c.num?`<div class="lit"><b>Art. ${F.art}, num. ${c.num}.</b> ${esc(F.items[c.num-1])}</div>
+      ${F&&c.num?`<div class="resumen"><b>Art. ${F.art}, num. ${c.num} en resumen:</b> ${esc(RES.faltas[c.clase][c.num-1])}</div>
+      <details><summary>Ver texto literal</summary><div class="lit">${esc(F.items[c.num-1])}</div></details>
       <div class="note">Sanción: ${esc(F.sancion)} (${F.ref}).</div>`:""}
       <label>Parágrafo (si aplica)</label><input type="text" data-k="par" value="${esc(c.par)}" placeholder="Ej.: Parágrafo único">
       <label>Por qué los hechos encajan en este numeral</label><textarea data-k="porque">${esc(c.porque)}</textarea>
@@ -48,12 +50,12 @@ function renderPruebas(){
     box.appendChild(d);
   });
 }
-function checks(id,list,key,labelFn){
+function checks(id,list,key,labelFn,off){ off=off||0;
   const box=document.getElementById(id); box.innerHTML="";
   list.forEach((t,i)=>{
     const l=document.createElement("label"); l.className="chk"; l.style.margin="5px 0"; l.style.color="inherit";
-    l.innerHTML=`<input type="checkbox" ${S[key].includes(i)?"checked":""}><span>${esc(labelFn(t,i))}</span>`;
-    l.querySelector("input").onchange=e=>{ const a=S[key]; const ix=a.indexOf(i); if(e.target.checked){ if(ix<0)a.push(i);} else if(ix>=0)a.splice(ix,1); update(); };
+    l.innerHTML=`<input type="checkbox" ${S[key].includes(i+off)?"checked":""}><span>${esc(labelFn(t,i))}</span>`;
+    l.querySelector("input").onchange=e=>{ const a=S[key]; const n=i+off; const ix=a.indexOf(n); if(e.target.checked){ if(ix<0)a.push(n);} else if(ix>=0)a.splice(ix,1); update(); };
     box.appendChild(l);
   });
 }
@@ -110,6 +112,7 @@ function build(){
     h+=`<table><tr><th colspan="2">Cargo ${i+1}</th></tr>
      <tr><td class="k">Clasificación</td><td>${ok?`Falta ${F.nombre.toLowerCase()}`:`<span class="ph">[Leve / grave / gravísima]</span>`}</td></tr>
      <tr><td class="k">Ubicación en el Reglamento</td><td>Resolución 000292 de 2024, Parte II, Título III, Capítulo IV (Faltas y sanciones), ${ok?`Artículo ${F.art}, numeral ${c.num}`:`<span class="ph">[Artículo y numeral]</span>`}${c.par?`, ${esc(c.par)}`:""}</td></tr>
+     <tr><td class="k">En resumen</td><td>${ok?esc(RES.faltas[c.clase][c.num-1]):`<span class="ph">[Resumen]</span>`}</td></tr>
      <tr><td class="k">Texto literal de la norma</td><td>${ok?`«${esc(F.items[c.num-1])}»`:`<span class="ph">[Texto del numeral]</span>`}</td></tr>
      <tr><td class="k">Por qué los hechos encajan</td><td>${ph(c.porque,"Explicación")}</td></tr>
      <tr><td class="k">Sanción prevista</td><td>${ok?`${esc(F.sancion)} (${F.ref})`:`<span class="ph">[Sanción]</span>`}</td></tr></table>`;
@@ -123,11 +126,11 @@ function build(){
 
   h+=`<h2>5. Deberes, prohibiciones y principios vulnerados</h2>`;
   const rows=[];
-  S.deb.slice().sort((a,b)=>a-b).forEach(i=>rows.push(["Deber del voluntario",`Art. 18, num. ${i+1}`,DEBERES[i]]));
-  S.pro.slice().sort((a,b)=>a-b).forEach(i=>rows.push(["Prohibición",`Art. 19, num. ${i+1}`,PROHIB[i]]));
-  S.pri.slice().sort((a,b)=>a-b).forEach(i=>rows.push([i<4?"Principio":"Valor",PRINCIPIOS[i].k,PRINCIPIOS[i].t]));
+  S.deb.slice().sort((a,b)=>a-b).forEach(i=>rows.push(["Deber del voluntario",`Art. 18, num. ${i+1}`,DEBERES[i],RES.deb[i]]));
+  S.pro.slice().sort((a,b)=>a-b).forEach(i=>rows.push(["Prohibición",`Art. 19, num. ${i+1}`,PROHIB[i],RES.pro[i]]));
+  S.pri.slice().sort((a,b)=>a-b).forEach(i=>rows.push([i<4?"Principio":"Valor",PRINCIPIOS[i].k,PRINCIPIOS[i].t,RES.pri[i]]));
   if(rows.length){
-    h+=`<table><tr><th style="width:20%">Norma</th><th style="width:22%">Artículo y numeral</th><th>Texto literal</th></tr>`+rows.map(r=>`<tr><td>${r[0]}</td><td>${esc(r[1])}</td><td>«${esc(r[2])}»</td></tr>`).join("")+`</table>`;
+    h+=`<table><tr><th style="width:15%">Norma</th><th style="width:18%">Artículo y numeral</th><th style="width:25%">En resumen</th><th>Texto literal</th></tr>`+rows.map(r=>`<tr><td>${r[0]}</td><td>${esc(r[1])}</td><td>${esc(r[3])}</td><td>«${esc(r[2])}»</td></tr>`).join("")+`</table>`;
     if(val("normasRel")) h+=`<p><b>Relación con los hechos:</b> ${esc(val("normasRel"))}</p>`;
   } else h+=`<p><span class="ph">[Seleccione los deberes, prohibiciones o principios vulnerados]</span></p>`;
 
@@ -191,9 +194,10 @@ TEXT_IDS.forEach(i=>{ const el=document.getElementById(i); el.addEventListener("
 load();
 if(!document.getElementById("fecha").value){ const d=new Date(); document.getElementById("fecha").value=d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
 renderCargos(); renderPruebas();
-checks("listDeb",DEBERES,"deb",(t,i)=>`Num. ${i+1}: ${t.slice(0,110)}${t.length>110?"…":""}`);
-checks("listPro",PROHIB,"pro",(t,i)=>`Num. ${i+1}: ${t.slice(0,110)}${t.length>110?"…":""}`);
-checks("listPri",PRINCIPIOS,"pri",t=>t.k);
+checks("listDeb",DEBERES,"deb",(t,i)=>`Num. ${i+1}: ${RES.deb[i]}`);
+checks("listPro",PROHIB,"pro",(t,i)=>`Num. ${i+1}: ${RES.pro[i]}`);
+checks("listPriA",PRINCIPIOS.slice(0,4),"pri",(t,i)=>`${t.k.replace("Art. 6, literal ","").replace(/^([a-d]) \((.*)\)$/,"$1) $2")}: ${RES.pri[i]}`,0);
+checks("listPriB",PRINCIPIOS.slice(4),"pri",(t,i)=>`${t.k.replace("Art. 7, literal ","").replace(/^([a-i]) \((.*)\)$/,"$1) $2")}: ${RES.pri[i+4]}`,4);
 checks("listAten",ATEN,"aten",t=>t);
 checks("listAgr",AGRA,"agr",t=>t);
 update();
