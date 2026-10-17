@@ -4,12 +4,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Generador de informe disciplinario - Defensa Civil</title>
-<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
 <header class="top">
   <div class="logo-box">
-    <img id="logoImg" class="logo-img" src="logo.png" alt="Logo de la Defensa Civil Colombiana">
+    <img id="logoImg" class="logo-img" src="img/logo.png" alt="Logo de la Defensa Civil Colombiana">
   </div>
   <div class="ttl">
     <h1>Generador de informe de presunta falta disciplinaria</h1>
@@ -112,6 +112,17 @@
     <label>Notificaciones (dirección, correo, teléfono)</label><input type="text" id="notif">
     <label>Anexos</label><input type="text" id="anexos">
   </div>
+
+  <div class="panel"><h2>9. Firma de quien informa</h2>
+    <p class="sub" style="margin:0;font-weight:400;color:#5b6675">Firme con el dedo (celular o pantalla táctil) o con el mouse. Queda en el informe, debajo de «Cordialmente».</p>
+    <div class="sigwrap" id="sigWrap">
+      <canvas id="sigPad"></canvas>
+      <div class="sigline"></div>
+      <div class="sigph">Firme aquí</div>
+    </div>
+    <div class="bar" style="margin:8px 0 0"><button type="button" class="btn sec sm" id="sigClear">Borrar firma</button></div>
+    <p class="sub" style="margin:6px 0 0;font-weight:400;color:#5b6675;font-size:12px">Por seguridad, la firma no se guarda al cerrar o recargar la página: solo dura mientras prepara el informe.</p>
+  </div>
 </div>
 
 <div>
@@ -119,7 +130,7 @@
 </div>
 </div>
 
-<script src="data.js"></script>
-<script src="app.js"></script>
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
 </body>
 </html>
