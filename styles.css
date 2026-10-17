@@ -58,3 +58,9 @@ details.guia li{margin:3px 0}
 .logo-box{display:flex;align-items:center;flex-shrink:0}
 .logo-img{height:78px;width:78px;display:block;background:#fff;border-radius:50%;padding:2px;box-shadow:0 1px 4px rgba(0,0,0,.25)}
 @media(max-width:620px){header.top{flex-direction:column;align-items:flex-start}}
+/* firma */
+.sigwrap{position:relative;border:2px dashed #9fb4c8;border-radius:8px;background:#fff;margin-top:8px;user-select:none;-webkit-user-select:none}
+#sigPad{display:block;width:100%;height:190px;touch-action:none;cursor:crosshair;border-radius:6px}
+.sigph{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);text-align:center;color:#9aa6b4;font-size:15px;pointer-events:none}
+.sigline{position:absolute;left:8%;right:8%;bottom:40px;border-bottom:1px solid #c7d0db;pointer-events:none}
+.sigwrap.firmado .sigph{display:none}

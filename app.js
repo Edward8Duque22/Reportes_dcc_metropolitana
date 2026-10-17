@@ -83,10 +83,45 @@ function destHTML(){
 const LOGO={src:"",ok:false};
 function initLogo(){
   const img=document.getElementById("logoImg");
-  const src=(typeof LOGO_DATA!=="undefined")?LOGO_DATA:"logo.png";
+  const src=(typeof LOGO_DATA!=="undefined")?LOGO_DATA:"img/logo.png";
   img.onload=()=>{LOGO.ok=true;LOGO.src=img.currentSrc||img.src;update();};
   img.onerror=()=>{LOGO.ok=false;LOGO.src="";img.style.display="none";update();};
   img.src=src;
+}
+
+/* ===== Firma ===== */
+const SIG={strokes:[],data:""};
+function initSig(){
+  const cv=document.getElementById("sigPad"), wrap=document.getElementById("sigWrap"), ctx=cv.getContext("2d");
+  let drawing=false, cur=null;
+  const pos=e=>{const r=cv.getBoundingClientRect();return {x:e.clientX-r.left,y:e.clientY-r.top};};
+  const ink=()=>{ctx.lineWidth=2.6;ctx.lineCap="round";ctx.lineJoin="round";ctx.strokeStyle="#0b1f3a";};
+  function stroke(s){
+    if(!s.length) return; ctx.beginPath(); ctx.moveTo(s[0].x,s[0].y);
+    if(s.length===1) ctx.lineTo(s[0].x+0.01,s[0].y);
+    for(let i=1;i<s.length-1;i++){ctx.quadraticCurveTo(s[i].x,s[i].y,(s[i].x+s[i+1].x)/2,(s[i].y+s[i+1].y)/2);}
+    if(s.length>1){const l=s[s.length-1];ctx.lineTo(l.x,l.y);}
+    ctx.stroke();
+  }
+  function redraw(){ctx.clearRect(0,0,cv.width,cv.height);ink();SIG.strokes.forEach(stroke);wrap.classList.toggle("firmado",SIG.strokes.length>0);}
+  function fit(){const r=cv.getBoundingClientRect(),d=window.devicePixelRatio||1;if(!r.width)return;cv.width=Math.round(r.width*d);cv.height=Math.round(r.height*d);ctx.setTransform(d,0,0,d,0,0);redraw();}
+  function exportSig(){
+    if(!SIG.strokes.length){SIG.data="";return;}
+    const w=cv.width,h=cv.height,px=ctx.getImageData(0,0,w,h).data; let x0=w,y0=h,x1=-1,y1=-1;
+    for(let y=0;y<h;y++)for(let x=0;x<w;x++){if(px[(y*w+x)*4+3]>10){if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y;}}
+    if(x1<0){SIG.data="";return;}
+    const p=8; x0=Math.max(0,x0-p);y0=Math.max(0,y0-p);x1=Math.min(w-1,x1+p);y1=Math.min(h-1,y1+p);
+    const cw=x1-x0+1,ch=y1-y0+1,sc=Math.min(1,600/cw),o=document.createElement("canvas");
+    o.width=Math.max(1,Math.round(cw*sc));o.height=Math.max(1,Math.round(ch*sc));
+    o.getContext("2d").drawImage(cv,x0,y0,cw,ch,0,0,o.width,o.height);
+    SIG.data=o.toDataURL("image/png");
+  }
+  cv.addEventListener("pointerdown",e=>{e.preventDefault();try{cv.setPointerCapture(e.pointerId);}catch(_){ }drawing=true;cur=[pos(e)];SIG.strokes.push(cur);ink();stroke(cur);wrap.classList.add("firmado");});
+  cv.addEventListener("pointermove",e=>{if(!drawing)return;e.preventDefault();const p=pos(e),l=cur[cur.length-1];cur.push(p);ink();ctx.beginPath();ctx.moveTo(l.x,l.y);ctx.lineTo(p.x,p.y);ctx.stroke();});
+  const end=()=>{if(!drawing)return;drawing=false;redraw();exportSig();update();};
+  cv.addEventListener("pointerup",end); cv.addEventListener("pointercancel",end); cv.addEventListener("pointerleave",e=>{if(drawing&&!(e.buttons))end();});
+  document.getElementById("sigClear").onclick=()=>{SIG.strokes=[];SIG.data="";redraw();update();};
+  window.addEventListener("resize",fit); fit();
 }
 
 /* ===== Documento ===== */
@@ -196,7 +231,8 @@ function build(){
   <p>Notificaciones: ${ph(val("notif"),"dirección, correo electrónico y teléfono")}.</p>
   <p>Anexos: ${ph(val("anexos"),"lista de documentos y folios")}.</p>
   <p style="margin-top:20px">Cordialmente,</p>
-  <div class="sig"><b>${ph(val("inf"),"Nombre completo")}</b><br>${ph(val("infcargo"),"Calidad o cargo")} · C.C. ${ph(val("infcc"),"número")}<br>${ph(val("org"),"Organización")}</div>`;
+  <div style="height:85px;display:flex;align-items:flex-end">${SIG.data?`<img src="${SIG.data}" alt="Firma" style="max-height:80px;max-width:280px">`:""}</div>
+  <div class="sig" style="margin-top:0"><b>${ph(val("inf"),"Nombre completo")}</b><br>${ph(val("infcargo"),"Calidad o cargo")} · C.C. ${ph(val("infcc"),"número")}<br>${ph(val("org"),"Organización")}</div>`;
   return h;
 }
 function update(){ syncDest(); document.getElementById("sheet").innerHTML=build(); save(); }
@@ -226,7 +262,7 @@ TEXT_IDS.forEach(i=>{ const el=document.getElementById(i); el.addEventListener("
 /* ===== Inicio ===== */
 load();
 if(!document.getElementById("fecha").value){ const d=new Date(); document.getElementById("fecha").value=d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
-renderCargos(); renderPruebas(); initLogo();
+renderCargos(); renderPruebas(); initLogo(); initSig();
 checks("listDeb",DEBERES,"deb",(t,i)=>`Num. ${i+1}: ${RES.deb[i]}`);
 checks("listPro",PROHIB,"pro",(t,i)=>`Num. ${i+1}: ${RES.pro[i]}`);
 checks("listPriA",PRINCIPIOS.slice(0,4),"pri",(t,i)=>`${t.k.replace("Art. 6, literal ","").replace(/^([a-d]) \((.*)\)$/,"$1) $2")}: ${RES.pri[i]}`,0);
