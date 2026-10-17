@@ -1,5 +1,5 @@
 /* ===== Estado ===== */
-const TEXT_IDS = ["ciudad","fecha","seccional","org","inf","infcargo","infcc","vol","volcc","volnivel","volorg","volcal","volant","h_tiempo","h_lugar","h_ctx","h_cond","h_test","h_cons","normasRel","pruebasSol","aaObs","peticion","notif","anexos"];
+const TEXT_IDS = ["ciudad","fecha","dirigido","dirNombre","dirOrg","seccional","org","inf","infcargo","infcc","vol","volcc","volnivel","volorg","volcal","volant","h_tiempo","h_lugar","h_ctx","h_cond","h_test","h_cons","normasRel","pruebasSol","aaObs","peticion","notif","anexos"];
 let S = { cargos:[{clase:"",num:"",par:"",porque:""}], pruebas:[{tipo:"Documental",desc:"",folios:""}], deb:[], pro:[], pri:[], aten:[], agr:[] };
 const KEY = "informe_disciplinario_dc_v1";
 function save(){ try{ const o={S,f:{}}; TEXT_IDS.forEach(i=>o.f[i]=document.getElementById(i).value); localStorage.setItem(KEY,JSON.stringify(o)); }catch(e){} }
@@ -60,6 +60,35 @@ function checks(id,list,key,labelFn,off){ off=off||0;
   });
 }
 
+/* ===== Destinatario y logo ===== */
+const DEST_NOTE={
+ seccional:"El Director Seccional es la autoridad que investiga y falla en primera instancia (Art. 41).",
+ junta_dir:"La Junta Directiva (Art. 116) es el órgano de administración de la junta y recibe el informe, pero solo el Director Seccional investiga y falla (Art. 41). El informe incluye el traslado a la Seccional.",
+ junta:"El presidente recibe el informe por el conducto regular (Art. 18, num. 11), pero solo el Director Seccional investiga y falla (Art. 41). El informe incluye el traslado a la Seccional.",
+ comite:"El comité no investiga ni sanciona: solo el Director Seccional puede hacerlo (Art. 41). El informe incluye el traslado a la Seccional."
+};
+function syncDest(){
+  const t=val("dirigido")||"seccional";
+  document.getElementById("dirNote").textContent=DEST_NOTE[t];
+  document.getElementById("dirOrgBox").style.visibility=t==="seccional"?"hidden":"visible";
+}
+function destHTML(){
+  const t=val("dirigido")||"seccional";
+  const nom=val("dirNombre")?`${esc(val("dirNombre"))}, `:"";
+  if(t==="junta_dir") return `Junta Directiva de la Junta de Defensa Civil ${ph(val("dirOrg"),"nombre de la junta y municipio")}${val("dirNombre")?`, a la atención de ${esc(val("dirNombre"))}`:""}`;
+  if(t==="junta") return `${nom}Presidente(a) de la Junta de Defensa Civil ${ph(val("dirOrg"),"nombre de la junta y municipio")}`;
+  if(t==="comite") return `${nom}Voluntario(a) coordinador(a) del Comité ${ph(val("dirOrg"),"nombre del comité y municipio")}`;
+  return `${nom}Director(a) Seccional de ${ph(val("seccional"),"Departamento")}`;
+}
+const LOGO={src:"",ok:false};
+function initLogo(){
+  const img=document.getElementById("logoImg");
+  const src=(typeof LOGO_DATA!=="undefined")?LOGO_DATA:"img/logo.png";
+  img.onload=()=>{LOGO.ok=true;LOGO.src=img.currentSrc||img.src;update();};
+  img.onerror=()=>{LOGO.ok=false;LOGO.src="";img.style.display="none";update();};
+  img.src=src;
+}
+
 /* ===== Documento ===== */
 function claseMax(){
   const orden={leve:1,grave:2,gravisima:3}; let m=null;
@@ -69,8 +98,10 @@ function claseMax(){
 function build(){
   const fecha=fechaLarga(val("fecha"));
   const vol=val("vol");
-  let h=`<p class="c"><b>DEFENSA CIVIL COLOMBIANA</b></p>
-  <p class="c">Dirección Seccional de ${ph(val("seccional"),"Departamento")}</p>
+  let h=`<table class="dochead" style="border:0;width:100%"><tr>
+   <td style="border:0;vertical-align:middle;width:105px">${LOGO.ok?`<img src="${LOGO.src}" alt="Logo" style="max-height:80px;max-width:90px">`:""}</td>
+   <td style="border:0;vertical-align:middle"><p style="margin:0;font-size:13pt"><b>DEFENSA CIVIL COLOMBIANA</b></p>
+   <p style="margin:0">Dirección Seccional de ${ph(val("seccional"),"Departamento")}</p></td></tr></table>
   <h1>INFORME DE PRESUNTA FALTA DISCIPLINARIA DE VOLUNTARIO</h1>
   <p class="c q" style="font-size:10pt">Reglamento del Voluntario y Organizaciones de Defensa Civil (Resolución 000292 del 28 de junio de 2024)</p>
 
@@ -78,7 +109,7 @@ function build(){
   <p style="font-size:10pt">Informe presentado conforme a los artículos 37 y 38 del Reglamento, que permiten iniciar la acción disciplinaria por informe y obligan a quien conozca una posible falta a ponerla en conocimiento de la autoridad competente.</p>
   <table>
    <tr><td class="k">Lugar y fecha</td><td>${ph(val("ciudad"),"Ciudad")}, ${ph(fecha,"fecha")}</td></tr>
-   <tr><td class="k">Dirigido a</td><td>Director(a) Seccional de ${ph(val("seccional"),"Departamento")} (Art. 41, competente en primera instancia)</td></tr>
+   <tr><td class="k">Dirigido a</td><td>${destHTML()}${(val("dirigido")||"seccional")==="seccional"?" (Art. 41, competente en primera instancia)":`, con traslado al Director(a) Seccional de ${ph(val("seccional"),"Departamento")}, competente en primera instancia (Art. 41)`}</td></tr>
    <tr><td class="k">Organización</td><td>${ph(val("org"),"Junta o Comité y municipio")}</td></tr>
    <tr><td class="k">Quien informa</td><td>${ph(val("inf"),"Nombre")}, ${ph(val("infcargo"),"cargo o calidad")}</td></tr>
    <tr><td class="k">Documento de identidad</td><td>${ph(val("infcc"),"Número")}</td></tr>
@@ -157,7 +188,7 @@ function build(){
    <li>Con confesión o aceptación de cargos la sanción puede rebajarse hasta en la mitad, salvo en faltas leves (Art. 65).</li></ul>
 
   <h2>9. Solicitud</h2>
-  <p>Con fundamento en los artículos 37, 38 y 67 del Reglamento, se solicita respetuosamente al Director Seccional:</p>
+  <p>Con fundamento en los artículos 37, 38 y 67 del Reglamento, se solicita respetuosamente ${(val("dirigido")||"seccional")==="seccional"?"al Director Seccional":`a ${val("dirigido")==="junta_dir"?"la ":""}${destHTML()}, dar traslado de este informe al Director Seccional de ${ph(val("seccional"),"Departamento")}, competente en primera instancia (Art. 41), y a este`}:</p>
   <ol><li>Estudiar este informe dentro de los cinco días hábiles siguientes a su recepción (Art. 67).</li>
   <li>Disponer el auto de citación a audiencia al voluntario ${ph(vol,"nombre")}, si encuentra mérito (Art. 68).</li>
   <li>Practicar las pruebas relacionadas en el punto 6 y las que considere necesarias.</li>
@@ -168,13 +199,15 @@ function build(){
   <div class="sig"><b>${ph(val("inf"),"Nombre completo")}</b><br>${ph(val("infcargo"),"Calidad o cargo")} · C.C. ${ph(val("infcc"),"número")}<br>${ph(val("org"),"Organización")}</div>`;
   return h;
 }
-function update(){ document.getElementById("sheet").innerHTML=build(); save(); }
+function update(){ syncDest(); document.getElementById("sheet").innerHTML=build(); save(); }
 
 /* ===== Acciones ===== */
 document.getElementById("bPrint").onclick=()=>window.print();
 document.getElementById("bDoc").onclick=()=>{
-  const css="body{font-family:Arial;font-size:11pt}table{border-collapse:collapse;width:100%}td,th{border:1px solid #999;padding:4px 6px;font-size:10pt;vertical-align:top}th{background:#d9e2f3}td.k{background:#f2f2f2;font-weight:bold}h1{font-size:14pt;text-align:center;color:#1f3864}h2{font-size:12pt;color:#1f3864}.c{text-align:center}.ph{background:#fff3b0}.sig{margin-top:50px;border-top:1px solid #000;width:60%}";
-  const html=`<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word"><head><meta charset="utf-8"><title>Informe</title><style>${css}</style></head><body>${document.getElementById("sheet").innerHTML}</body></html>`;
+  const css="body{font-family:Arial;font-size:11pt}table{border-collapse:collapse;width:100%}td,th{border:1px solid #999;padding:4px 6px;font-size:10pt;vertical-align:top}th{background:#0661A2;color:#fff}td.k{background:#fff1d6;font-weight:bold}h1{font-size:14pt;text-align:center;color:#0661A2;border-bottom:3px solid #F19800}h2{font-size:12pt;color:#0661A2;border-left:5px solid #F19800;padding-left:6px}.c{text-align:center}.ph{background:#ffe3a6}.sig{margin-top:50px;border-top:1px solid #000;width:60%}";
+  let body=document.getElementById("sheet").innerHTML;
+  try{ if(LOGO.ok && !LOGO.src.startsWith("data:")){ const im=document.getElementById("logoImg"), cv=document.createElement("canvas"); cv.width=im.naturalWidth; cv.height=im.naturalHeight; cv.getContext("2d").drawImage(im,0,0); body=body.split(LOGO.src).join(cv.toDataURL("image/png")); } }catch(e){}
+  const html=`<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word"><head><meta charset="utf-8"><title>Informe</title><style>${css}</style></head><body>${body}</body></html>`;
   const a=document.createElement("a"); a.href=URL.createObjectURL(new Blob(["﻿"+html],{type:"application/msword"}));
   a.download="Informe_Falta_Voluntario.doc"; document.body.appendChild(a); a.click(); a.remove();
 };
@@ -193,7 +226,7 @@ TEXT_IDS.forEach(i=>{ const el=document.getElementById(i); el.addEventListener("
 /* ===== Inicio ===== */
 load();
 if(!document.getElementById("fecha").value){ const d=new Date(); document.getElementById("fecha").value=d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
-renderCargos(); renderPruebas();
+renderCargos(); renderPruebas(); initLogo();
 checks("listDeb",DEBERES,"deb",(t,i)=>`Num. ${i+1}: ${RES.deb[i]}`);
 checks("listPro",PROHIB,"pro",(t,i)=>`Num. ${i+1}: ${RES.pro[i]}`);
 checks("listPriA",PRINCIPIOS.slice(0,4),"pri",(t,i)=>`${t.k.replace("Art. 6, literal ","").replace(/^([a-d]) \((.*)\)$/,"$1) $2")}: ${RES.pri[i]}`,0);

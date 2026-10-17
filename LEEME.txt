@@ -8,6 +8,7 @@ Estructura:
   index.html     Pagina y formulario
   css/styles.css Estilos de pantalla e impresion
   js/data.js     Texto literal de faltas, deberes, prohibiciones, principios, atenuantes y agravantes
+  img/logo.png   Logo de la Defensa Civil (se muestra arriba a la derecha y en el informe)
   js/app.js      Logica: formulario, autocompletado, vista del documento, imprimir, Word y copiar
 
 Mantenga las carpetas css y js junto a index.html.
