@@ -83,7 +83,7 @@ function destHTML(){
 const LOGO={src:"",ok:false};
 function initLogo(){
   const img=document.getElementById("logoImg");
-  const src=(typeof LOGO_DATA!=="undefined")?LOGO_DATA:"img/logo.png";
+  const src=(typeof LOGO_DATA!=="undefined")?LOGO_DATA:"logo.png";
   img.onload=()=>{LOGO.ok=true;LOGO.src=img.currentSrc||img.src;update();};
   img.onerror=()=>{LOGO.ok=false;LOGO.src="";img.style.display="none";update();};
   img.src=src;
